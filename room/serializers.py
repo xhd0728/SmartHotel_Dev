@@ -9,7 +9,7 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = (
-            'rid', 'room_id', 'space', 'is_hotwater', 'is_computer', 'value'
+            'rid', 'room_id', 'space', 'is_hotwater', 'is_computer', 'is_empty', 'value'
         )
 
     def get_rid(self, obj):

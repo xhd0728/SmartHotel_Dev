@@ -8,7 +8,7 @@ class Customer(models.Model):
     age = models.IntegerField(default=0)
     gender = models.SmallIntegerField(default=0)
     phone_num = models.CharField(max_length=11)
-    email = models.CharField(max_length=63)
+    email = models.CharField(max_length=63, default=None)
     level = models.SmallIntegerField(default=1)
     last_time = models.DateTimeField(default=timezone.now)
     create_time = models.DateTimeField(default=timezone.now)

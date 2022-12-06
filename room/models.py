@@ -7,4 +7,5 @@ class Room(models.Model):
     space = models.SmallIntegerField(default=1)
     is_hotwater = models.SmallIntegerField(default=0)
     is_computer = models.SmallIntegerField(default=0)
+    is_used = models.SmallIntegerField(default=0)
     value = models.DecimalField(max_digits=4, decimal_places=2)
