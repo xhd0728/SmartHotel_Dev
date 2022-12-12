@@ -12,3 +12,9 @@ class Comment(models.Model):
     room = models.ForeignKey(Room, on_delete=models.PROTECT)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     create_time = models.DateTimeField(default=timezone.now)
+
+
+class CommentCount(models.Model):
+    good = models.IntegerField(default=0)
+    medium = models.IntegerField(default=0)
+    bad = models.IntegerField(default=0)
