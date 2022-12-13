@@ -18,5 +18,5 @@ class CommentSerializer(serializers.ModelSerializer):
             'cid', 'text', 'star', 'room', 'customer', 'create_time'
         )
 
-        def get_cid(self, obj):
-            return obj.id
+    def get_cid(self, obj):
+        return obj.id

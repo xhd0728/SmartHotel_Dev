@@ -19,14 +19,14 @@ class Migration(migrations.Migration):
             name='Income',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('total', models.DecimalField(decimal_places=2, max_digits=4)),
+                ('total', models.DecimalField(decimal_places=2, max_digits=6)),
             ],
         ),
         migrations.CreateModel(
             name='Order',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pay', models.DecimalField(decimal_places=2, max_digits=4)),
+                ('pay', models.DecimalField(decimal_places=2, max_digits=6)),
                 ('create_time', models.DateTimeField(default=django.utils.timezone.now)),
                 ('customer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='customer.customer')),
                 ('room', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='room.room')),

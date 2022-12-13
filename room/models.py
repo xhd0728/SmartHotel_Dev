@@ -14,8 +14,8 @@ class Room(models.Model):
     is_hotwater = models.SmallIntegerField(default=0)
     is_computer = models.SmallIntegerField(default=0)
     is_used = models.SmallIntegerField(default=0)
-    value = models.DecimalField(max_digits=4, decimal_places=2)
-    floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=5, decimal_places=2)
+    floor = models.ForeignKey(Floor, on_delete=models.PROTECT)
 
 
 class FreeRoom(models.Model):

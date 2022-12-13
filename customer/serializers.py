@@ -7,7 +7,7 @@ class LevelSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
 
     class Meta:
-        Model = Level
+        model = Level
         fields = (
             'name',
         )
