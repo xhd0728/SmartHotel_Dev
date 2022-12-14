@@ -6,7 +6,9 @@ from user.models import User, Level
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = "__all__"
+        fields = (
+            "name",
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,5 +17,5 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "username", "email", "id", "level"
+            "username", "id", "level"
         )

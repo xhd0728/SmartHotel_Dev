@@ -13,9 +13,9 @@ class LevelSerializer(serializers.ModelSerializer):
         )
 
     def get_name(self, obj):
-        if obj.name == 0:
+        if obj.name == 1:
             return '普通会员'
-        elif obj.name == 1:
+        elif obj.name == 2:
             return '超级会员'
         else:
             return '至尊会员'

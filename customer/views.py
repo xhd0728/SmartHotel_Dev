@@ -5,10 +5,13 @@ from rest_framework.response import Response
 from .models import Customer, Level, CustomerCount
 from .serializers import CustomerSerializer
 
+from pkg.auth import require_login
+
 
 # Create your views here.
 class CustomerView(APIView):
 
+    @require_login
     def get(self, request):
         """获取顾客信息"""
         uid = request.GET.get('uid')
@@ -19,8 +22,10 @@ class CustomerView(APIView):
             return Response({"detail": "该用户不存在"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(CustomerSerializer(_customer, many=True).data, status=status.HTTP_200_OK)
 
+    @require_login
     def post(self, request):
         """添加或修改顾客"""
+        print(request.data)
         name = request.data.get('name')
         age = request.data.get('age') or 0
         gender = request.data.get('gender') or 0
@@ -30,18 +35,16 @@ class CustomerView(APIView):
         if not name or not phone_num:
             return Response({"detail": "用户信息填写不完整"}, status=status.HTTP_400_BAD_REQUEST)
         _level = Level.objects.get(id=level)
-        is_modify = request.data.get('is_modify')
-        if is_modify == '1':
-            if not Customer.objects.filter(phone_num=phone_num):
-                return Response({"detail": "该顾客信息不存在"}, status=status.HTTP_400_BAD_REQUEST)
-            _customer = Customer.objects.get(phone_num=phone_num)
-            _customer.name = name
-            _customer.age = age
-            _customer.gender = gender
-            _customer.phone_num = phone_num
-            _customer.email = email
-            _customer.level = _level
-            _customer.save()
+        uid = request.data.get('uid')
+        if uid:
+            Customer.objects.filter(id=uid).update(
+                name=name,
+                age=age,
+                gender=gender,
+                phone_num=phone_num,
+                email=email,
+                level=_level
+            )
             return Response({"detail": "ok"}, status=status.HTTP_200_OK)
         Customer.objects.create(
             name=name,
@@ -53,6 +56,7 @@ class CustomerView(APIView):
         )
         return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
+    @require_login
     def delete(self, request):
         """删除顾客"""
         uid = request.data.get('uid')
@@ -67,10 +71,11 @@ class CustomerView(APIView):
 
 class CustomerViews(APIView):
 
+    @require_login
     def get(self, request):
         """获取顾客列表"""
         is_empty = request.GET.get('is_empty')
-        if not is_empty or is_empty == '0':
+        if is_empty == '0':
             return Response(CustomerSerializer(Customer.objects.all(), many=True).data)
         name_or_phone_num = request.GET.get('name_or_phone_num')
         _customer = Customer.objects.filter(name=name_or_phone_num)
@@ -83,6 +88,7 @@ class CustomerViews(APIView):
 
 class CustomerStatus(APIView):
 
+    @require_login
     def get(self, request):
         """获取顾客信息"""
         customer_count = CustomerCount.objects.get(id=1).count

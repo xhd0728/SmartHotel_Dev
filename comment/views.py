@@ -8,9 +8,13 @@ from .serializers import CommentSerializer
 from room.models import Room
 from customer.models import Customer
 
+from pkg.auth import require_login
+
 
 # Create your views here.
 class CommentView(APIView):
+
+    @require_login
     def get(self, request):
         """获取指定评论信息"""
         cid = request.GET.get('cid')
@@ -21,6 +25,7 @@ class CommentView(APIView):
             return Response({"detail": "该评论不存在"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(CommentSerializer(_comment, many=True).data, status=status.HTTP_200_OK)
 
+    @require_login
     def post(self, request):
         """创建或修改评论"""
         phone_num = request.data.get('phone_num')
@@ -50,6 +55,7 @@ class CommentView(APIView):
         )
         return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
+    @require_login
     def delete(self, request):
         """删除评价"""
         cid = request.data.get('cid')
@@ -64,6 +70,7 @@ class CommentView(APIView):
 
 class CommentViews(APIView):
 
+    @require_login
     def get(self, request):
         """获取所有评价信息"""
         return Response(CommentSerializer(Comment.objects.all(), many=True).data)
@@ -71,6 +78,7 @@ class CommentViews(APIView):
 
 class CommentStatus(APIView):
 
+    @require_login
     def get(self, request):
         """获取评论数量"""
         comment_good = CommentCount.objects.get(id=1).good

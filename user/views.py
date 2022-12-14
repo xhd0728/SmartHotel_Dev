@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from pkg.auth import require_login, gene_token
 from pkg import code, enctypt
-from .models import User
+from .models import User, Level
 from .serializers import UserSerializer
 import base64
 
@@ -51,7 +51,13 @@ class UserCreateView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+        level = request.data.get('level') or 1
+        _level = Level.objects.get(id=level)
         if not username or not password:
             return Response({"detail": "请输入用户名和密码"}, status=status.HTTP_400_BAD_REQUEST)
-        User.objects.create_user(username=username, password=password)
+        User.objects.create_user(
+            username=username,
+            password=password,
+            level=_level
+        )
         return Response({"detail": "success"}, status=status.HTTP_200_OK)

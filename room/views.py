@@ -7,9 +7,13 @@ from .serializers import RoomSerializer
 
 from django.db.models import Q
 
+from pkg.auth import require_login
+
 
 # Create your views here.
 class RoomView(APIView):
+
+    @require_login
     def get(self, request):
         """获取指定房间信息"""
         rid = request.GET.get('rid')
@@ -20,6 +24,7 @@ class RoomView(APIView):
             return Response({"detail": "房间信息异常"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(RoomSerializer(_room, many=True).data)
 
+    @require_login
     def post(self, request):
         """创建房间"""
         room_id = request.data.get('room_id')
@@ -52,6 +57,7 @@ class RoomView(APIView):
         # _free_room_total.save()
         return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
+    @require_login
     def delete(self, request):
         """删除指定房间"""
         rid = request.DELETE.get('rid')
@@ -66,32 +72,62 @@ class RoomView(APIView):
 
 class RoomViews(APIView):
 
+    @require_login
     def get(self, request):
         """获取满足条件的全部房间"""
         is_empty = request.GET.get('is_empty')
-        print(request.GET)
         if is_empty == '0':
             return Response(RoomSerializer(Room.objects.all(), many=True).data)
         q = Q()
         q.connector = 'AND'
-        _is_used = request.GET.get('is_used') or 2
+        _is_used = request.GET.get('is_used') or '2'
         if _is_used == '0':
             q.children.append(('is_used', 0))
         elif _is_used == '1':
             q.children.append(('is_used', 1))
-        _space = request.GET.get('space') or 1
-        _is_hotwater = request.GET.get('is_hotwater') or 1
-        _is_computer = request.GET.get('is_computer') or 1
+        else:
+            q_is_used = Q()
+            q_is_used.connector = 'OR'
+            q_is_used.children.append(('is_used', 0))
+            q_is_used.children.append(('is_used', 1))
+            q.add(q_is_used, 'AND')
+        _space = request.GET.get('space') or '1'
+        if _space == '1':
+            q.children.append(('space', 1))
+        elif _space == '2':
+            q.children.append(('space', 2))
+        else:
+            q.children.append(('space', 3))
+        _is_hotwater = request.GET.get('is_hotwater') or 2
+        if _is_hotwater == '0':
+            q.children.append(('is_hotwater', 0))
+        elif _is_hotwater == '1':
+            q.children.append(('is_hotwater', 1))
+        else:
+            q_is_hotwater = Q()
+            q_is_hotwater.connector = 'OR'
+            q_is_hotwater.children.append(('is_hotwater', 0))
+            q_is_hotwater.children.append(('is_hotwater', 1))
+            q.add(q_is_hotwater, 'AND')
+        _is_computer = request.GET.get('is_computer') or 2
+        if _is_computer == '0':
+            q.children.append(('is_computer', 0))
+        elif _is_computer == '1':
+            q.children.append(('is_computer', 1))
+        else:
+            q_is_computer = Q()
+            q_is_computer.connector = 'OR'
+            q_is_computer.children.append(('is_computer', 0))
+            q_is_computer.children.append(('is_computer', 1))
+            q.add(q_is_computer, 'AND')
         _value_l = request.GET.get('input1') or 0
         _value_r = request.GET.get('input2') or 999
-        q.children.append(('space', _space))
-        q.children.append(('is_hotwater', _is_hotwater))
-        q.children.append(('is_computer', _is_computer))
         q.children.append(('value__gte', _value_l))
         q.children.append(('value__lte', _value_r))
         _Rooms = Room.objects.filter(q)
         return Response(RoomSerializer(_Rooms, many=True).data)
 
+    @require_login
     def post(self, request):
         """修改房间状态"""
         rid = request.data.get('rid')
@@ -115,6 +151,7 @@ class RoomViews(APIView):
 
 class RoomStatus(APIView):
 
+    @require_login
     def get(self, request):
         """酒店房间状态信息"""
         free_room = FreeRoom.objects.get(id=1).count

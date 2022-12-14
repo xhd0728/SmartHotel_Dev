@@ -10,9 +10,13 @@ from .serializers import OrderSerializer
 from room.models import Room
 from customer.models import Customer
 
+from pkg.auth import require_login
+
 
 # Create your views here.
 class OrderView(APIView):
+
+    @require_login
     def get(self, request):
         """获取订单信息"""
         oid = request.GET.get('oid')
@@ -23,6 +27,7 @@ class OrderView(APIView):
             return Response({"detail": "该订单不存在"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(OrderSerializer(_order, many=True).data, status=status.HTTP_200_OK)
 
+    @require_login
     def post(self, request):
         """新建或编辑订单"""
         oid = request.data.get('oid')
@@ -41,8 +46,7 @@ class OrderView(APIView):
         _customer.last_time = timezone.now()
         _customer.save()
         pay = request.data.get('pay') or _room.value
-        is_modify = request.data.get('is_modify')
-        if is_modify == '1':
+        if oid:
             Order.objects.filter(id=oid).update(
                 room=_room,
                 customer=_customer,
@@ -56,12 +60,13 @@ class OrderView(APIView):
         # _income.save()
         return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
+    @require_login
     def delete(self, request):
         """删除订单"""
         oid = request.data.get('oid')
         if not oid:
             return Response({"detail": "未获取到订单编号"}, status=status.HTTP_400_BAD_REQUEST)
-        _order = Order.objects.get(id=oid)
+        _order = Order.objects.filter(id=oid)
         if not _order:
             return Response({"detail": "未获取到订单信息"}, status=status.HTTP_400_BAD_REQUEST)
         _order.delete()
@@ -70,6 +75,7 @@ class OrderView(APIView):
 
 class OrderViews(APIView):
 
+    @require_login
     def get(self, request):
         """获取所有订单信息"""
         return Response(OrderSerializer(Order.objects.all(), many=True).data)
@@ -77,7 +83,9 @@ class OrderViews(APIView):
 
 class OrderStatus(APIView):
 
+    @require_login
     def get(self, request):
         """获取订单数量"""
-        order_count = Income.objects.get(id=1).total
-        return Response({"order_count": order_count}, status=status.HTTP_200_OK)
+        income_total = Income.objects.get(id=1).total
+        order_total = Order.objects.all().count()
+        return Response({"order_total": order_total, "income_total": income_total}, status=status.HTTP_200_OK)
